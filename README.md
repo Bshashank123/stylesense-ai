@@ -24,17 +24,6 @@ Image Processing: Pillow / OpenCV
 
 Database: MongoDB / PostgreSQL
 
-Project Structure
-stylesense-ai/
-│
-├── frontend/
-├── backend/
-│   ├── routes/
-│   ├── services/
-│   ├── prompts/
-│   └── main.py
-│
-└── README.md
 Getting Started
 Clone the repo
 git clone https://github.com/Bshashank123/stylesense-ai
