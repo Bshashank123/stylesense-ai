@@ -1,32 +1,96 @@
 # ✦ StyleSense AI
 
-> Your AI-powered personal fashion stylist — built with FastAPI + Google Gemini + Imagen 3
+> Your AI-powered personal fashion stylist — built with FastAPI + Groq + Hugging Face
+
+---
+
+## 🧠 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python 3.12, FastAPI, Uvicorn |
+| **Database** | SQLite via SQLAlchemy |
+| **Authentication** | JWT (python-jose) + bcrypt |
+| **LLM — Vision & Text** | Groq API (free tier) |
+| **Image Generation** | Hugging Face Inference API (free tier) |
+| **Frontend** | Vanilla HTML/CSS/JS |
+
+---
+
+## 🤖 LLMs & Models Used
+
+### 1. `meta-llama/llama-4-scout-17b-16e-instruct` — Vision Model
+Used for analyzing selfie photos and clothing images.
+
+| Parameter | Value |
+|-----------|-------|
+| Provider | Groq |
+| Modality | Vision + Text (multimodal) |
+| Parameters | 17 Billion |
+| Context Window | 131,072 tokens |
+| Temperature | `0.3` (selfie analysis), `0.2` (clothing analysis) |
+| Max Output Tokens | `1024` |
+| Input Format | Base64 image + text prompt |
+
+---
+
+### 2. `llama-3.3-70b-versatile` — Text Model
+Used for generating outfit recommendations from wardrobe data.
+
+| Parameter | Value |
+|-----------|-------|
+| Provider | Groq |
+| Modality | Text only |
+| Parameters | 70 Billion |
+| Context Window | 128,000 tokens |
+| Temperature | `0.7` |
+| Max Output Tokens | `1024` |
+| Input Format | Structured text prompt |
+
+---
+
+### 3. `black-forest-labs/FLUX.1-schnell` — Image Generation Model
+Used for generating virtual try-on outfit images.
+
+| Parameter | Value |
+|-----------|-------|
+| Provider | Hugging Face Inference API |
+| Model Type | Text-to-Image Diffusion (FLUX) |
+| Output Resolution | 512 × 768 px (portrait) |
+| Inference Steps | `4` (schnell = optimised for 1–4 steps) |
+| Input Format | Single-line text prompt |
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Get Your Gemini API Key
-Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create a free API key.
+### 1. Get Your Free API Keys
+
+**Groq** (for LLM — vision + text):
+- Go to [console.groq.com](https://console.groq.com)
+- Sign up (no credit card needed)
+- Create an API key
+
+**Hugging Face** (for image generation):
+- Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+- Create a **Read** token (no credit card needed)
 
 ### 2. Setup & Run
-```bash
-# Clone / unzip the project
-cd stylesense-ai
 
-# Create your .env file
+```bash
+cd stylesense-ai
 cp .env.example .env
 
-# Edit .env and paste your key:
-# GEMINI_API_KEY=your_actual_key_here
+# Edit .env and paste your keys:
+# GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxx
+# HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxx
 
-# Install and run (all-in-one)
+pip install -r requirements.txt
 chmod +x start.sh && ./start.sh
 ```
 
 Or manually:
 ```bash
-pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -54,10 +118,10 @@ stylesense-ai/
 │   └── outfit_router.py       # POST /api/outfit/generate-from-vibe
 │
 ├── services/
-│   └── gemini_service.py      # All Gemini API calls (isolated)
+│   └── groq_service.py        # All AI API calls (Groq + HF)
 │
 ├── utils/
-│   └── prompt_builder.py      # ⭐ Prompt Engineering Layer
+│   └── prompt_builder.py      # Prompt Engineering Layer
 │
 ├── static/uploads/            # User-uploaded images (auto-created)
 │
@@ -75,21 +139,21 @@ stylesense-ai/
 
 ```
 [Selfie Upload]
-      │ SELFIE_ANALYSIS_PROMPT → gemini-1.5-flash
+      │ SELFIE_ANALYSIS_PROMPT → llama-4-scout-17b (vision)
       ▼
-[Style Profile JSON] ─────────────────────────────┐
-                                                   │
-[Clothing Upload]                                  │
-      │ CLOTHING_ANALYSIS_PROMPT → gemini-1.5-flash│
-      ▼                                            │
-[Wardrobe DB] ─────────────────────────────────────┤
-                                                   │
-[Select Vibe]                                      │
-      │ build_outfit_prompt() → gemini-1.5-flash   │
-      ▼                                            │
-[Outfit JSON] ◄────────────────────────────────────┘
+[Style Profile JSON] ──────────────────────────────────┐
+                                                       │
+[Clothing Upload]                                      │
+      │ CLOTHING_ANALYSIS_PROMPT → llama-4-scout-17b  │
+      ▼                                               │
+[Wardrobe DB] ─────────────────────────────────────────┤
+                                                       │
+[Select Vibe]                                          │
+      │ build_outfit_prompt() → llama-3.3-70b          │
+      ▼                                               │
+[Outfit JSON] ◄────────────────────────────────────────┘
       │
-      │ build_image_prompt() → imagen-3.0-generate-001
+      │ build_image_prompt() → FLUX.1-schnell (HF)
       ▼
 [Virtual Try-On Image]
 ```
@@ -98,14 +162,14 @@ stylesense-ai/
 
 ## ⭐ Prompt Engineering Layer
 
-All AI prompts are in `utils/prompt_builder.py`:
+All AI prompts live in `utils/prompt_builder.py`:
 
 | Prompt | Model | Purpose |
 |--------|-------|---------|
-| `SELFIE_ANALYSIS_PROMPT` | gemini-1.5-flash | Selfie → Style Profile JSON |
-| `CLOTHING_ANALYSIS_PROMPT` | gemini-1.5-flash | Photo → Wardrobe Metadata JSON |
-| `build_outfit_prompt()` | gemini-1.5-flash | Wardrobe + Vibe → Outfit JSON |
-| `build_image_prompt()` | imagen-3.0-generate-001 | Outfit → Try-On Photo |
+| `SELFIE_ANALYSIS_PROMPT` | llama-4-scout-17b | Selfie → Style Profile JSON |
+| `CLOTHING_ANALYSIS_PROMPT` | llama-4-scout-17b | Photo → Wardrobe Metadata JSON |
+| `build_outfit_prompt()` | llama-3.3-70b | Wardrobe + Vibe → Outfit JSON |
+| `build_image_prompt()` | FLUX.1-schnell | Outfit → Virtual Try-On Photo |
 
 ---
 
@@ -171,7 +235,8 @@ SQLite (auto-created as `stylesense.db`):
 ## 🏆 Architecture Highlights
 
 1. **Prompt Engineering Layer** — All prompts centralised in `utils/prompt_builder.py` with schema enforcement, role-priming, and JSON-only outputs
-2. **Service Isolation** — All Gemini calls in `services/gemini_service.py`, never scattered across routes
+2. **Service Isolation** — All AI calls in `services/groq_service.py`, never scattered across routes
 3. **Multimodal Pipeline** — Vision (selfie + clothing) + LLM (outfit) + Image Gen (try-on)
 4. **Robust JSON Parsing** — `_extract_json()` handles markdown fences and messy LLM output
 5. **Async throughout** — FastAPI + async I/O for all file and AI operations
+6. **100% Free APIs** — No credit card required for any service
