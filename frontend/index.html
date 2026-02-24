@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StyleSense AI — Login</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .bg-gradient {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, #6d28d9 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 40% at 80% 80%, #db2777 0%, transparent 50%),
+                  #0a0a0a;
+    }
+
+    .card {
+      position: relative; z-index: 10;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-text-fill-color: white;
+      color: rgba(255,255,255,0.4);
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+      color: white;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: white !important;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-text-fill-color: white !important;
+      outline: none;
+      /* Force dark bg via inset shadow — beats Chrome autofill on blur */
+      -webkit-box-shadow: 0 0 0px 1000px #1a0a2e inset !important;
+      box-shadow: 0 0 0px 1000px #1a0a2e inset !important;
+      caret-color: white;
+    }
+
+    input:focus {
+      border-color: rgba(124, 58, 237, 0.6);
+      -webkit-box-shadow: 0 0 0px 1000px #1a0a2e inset, 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+      box-shadow: 0 0 0px 1000px #1a0a2e inset, 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.35); }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-text-fill-color: white !important;
+      -webkit-box-shadow: 0 0 0px 1000px #1a0a2e inset !important;
+      box-shadow: 0 0 0px 1000px #1a0a2e inset !important;
+      caret-color: white;
+      transition: background-color 999999s ease-in-out 0s, color 999999s ease-in-out 0s;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-text-fill-color: white;
+      margin-top: 8px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .features {
+      display: flex;
+      gap: 16px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .feature {
+      flex: 1;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .feature-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.4;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <div class="card">
+    <div class="logo">✦ StyleSense AI</div>
+    <p class="tagline">Your AI-powered personal fashion stylist</p>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <div id="error-msg" class="error-msg"></div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') submitLogin()"/>
+      </div>
+      <button class="btn-primary" id="login-btn" onclick="submitLogin()">Sign In →</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-form" style="display:none">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signup-password" placeholder="Min 6 characters" autocomplete="new-password"/>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="signup-confirm" placeholder="Repeat password" autocomplete="new-password"
+               onkeydown="if(event.key==='Enter') submitSignup()"/>
+      </div>
+      <button class="btn-primary" id="signup-btn" onclick="submitSignup()">Create Account →</button>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">👗</div>
+        <div class="feature-text">Smart Wardrobe Analysis</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✨</div>
+        <div class="feature-text">AI Outfit Generation</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📸</div>
+        <div class="feature-text">Virtual Try-On</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const err = document.getElementById('error-msg');
+      err.style.display = 'none';
+
+      if (tab === 'login') {
+        tabs[0].classList.add('active'); tabs[1].classList.remove('active');
+        loginForm.style.display = 'block'; signupForm.style.display = 'none';
+      } else {
+        tabs[1].classList.add('active'); tabs[0].classList.remove('active');
+        signupForm.style.display = 'block'; loginForm.style.display = 'none';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Please wait...';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = btnId === 'login-btn' ? 'Sign In →' : 'Create Account →';
+      }
+    }
+
+    async function submitLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) { showError('Please fill in all fields'); return; }
+
+      setLoading('login-btn', true);
+      try {
+        const res = await fetch(`${API}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError(data.detail || 'Login failed'); return; }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } catch (e) {
+        showError('Connection error. Is the server running?');
+      } finally {
+        setLoading('login-btn', false);
+      }
+    }
+
+    async function submitSignup() {
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+
+      if (!email || !password || !confirm) { showError('Please fill in all fields'); return; }
+      if (password !== confirm) { showError('Passwords do not match'); return; }
+      if (password.length < 6) { showError('Password must be at least 6 characters'); return; }
+
+      setLoading('signup-btn', true);
+      try {
+        const res = await fetch(`${API}/api/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError(data.detail || 'Signup failed'); return; }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } catch (e) {
+        showError('Connection error. Is the server running?');
+      } finally {
+        setLoading('signup-btn', false);
+      }
+    }
+
+    // Redirect if already logged in
+    if (localStorage.getItem('token')) {
+      window.location.href = '/dashboard';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StyleSense AI — Wardrobe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; min-height: 100vh; display: flex; }
+
+    .sidebar { width: 220px; min-width: 220px; background: rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 28px 16px; height: 100vh; position: sticky; top: 0; }
+    .sidebar-logo { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 32px; padding: 0 8px; }
+    .nav-items { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 12px; border-radius: 10px; text-decoration: none; color: rgba(255,255,255,0.45); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .nav-item.active { background: rgba(124,58,237,0.2); color: #c4b5fd; }
+    .nav-icon { font-size: 18px; }
+    .logout-btn { background: none; border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.15s; text-align: left; width: 100%; }
+    .logout-btn:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.15); }
+
+    .main { flex: 1; padding: 40px 48px; overflow-y: auto; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .page-title { font-size: 26px; font-weight: 800; }
+    .page-subtitle { color: rgba(255,255,255,0.4); font-size: 14px; margin-top: 4px; }
+
+    .btn { padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+
+    /* Upload Zone */
+    .upload-zone { border: 2px dashed rgba(124,58,237,0.35); border-radius: 16px; padding: 36px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(124,58,237,0.03); margin-bottom: 32px; }
+    .upload-zone:hover, .upload-zone.dragover { border-color: rgba(124,58,237,0.7); background: rgba(124,58,237,0.06); }
+    .upload-zone-icon { font-size: 36px; margin-bottom: 12px; }
+    .upload-zone-text { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 6px; }
+    .upload-zone-sub { font-size: 13px; color: rgba(255,255,255,0.3); }
+
+    /* Analyzing overlay */
+    .analyzing-bar { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); border-radius: 12px; padding: 16px 20px; display: none; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .analyzing-bar.active { display: flex; }
+    .analyzing-text { font-size: 14px; color: rgba(255,255,255,0.7); }
+
+    /* Wardrobe Grid */
+    .wardrobe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+    .clothing-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; overflow: hidden; transition: all 0.2s; position: relative; group: true; }
+    .clothing-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
+    .clothing-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; background: rgba(255,255,255,0.05); }
+    .clothing-img-placeholder { width: 100%; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; font-size: 48px; background: rgba(255,255,255,0.04); }
+    .clothing-info { padding: 12px; }
+    .clothing-type { font-size: 13px; font-weight: 600; text-transform: capitalize; margin-bottom: 4px; }
+    .clothing-color { font-size: 12px; color: rgba(255,255,255,0.4); text-transform: capitalize; }
+    .clothing-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+    .clothing-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); text-transform: capitalize; }
+    .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.8); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: none; align-items: center; justify-content: center; transition: all 0.2s; }
+    .clothing-card:hover .delete-btn { display: flex; }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .empty-text { color: rgba(255,255,255,0.4); font-size: 16px; }
+
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn { padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: rgba(255,255,255,0.4); font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+    .filter-btn:hover, .filter-btn.active { background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.4); color: #c4b5fd; }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 1000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo">✦ StyleSense</div>
+    <div class="nav-items">
+      <a href="/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Home</a>
+      <a href="/wardrobe" class="nav-item active"><span class="nav-icon">👚</span> Wardrobe</a>
+      <a href="/generate" class="nav-item"><span class="nav-icon">✨</span> Generate</a>
+      <a href="/result" class="nav-item"><span class="nav-icon">📸</span> History</a>
+    </div>
+    <button class="logout-btn" onclick="logout()">← Sign Out</button>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">👗 My Wardrobe</div>
+        <div class="page-subtitle" id="wardrobe-count">Loading your items...</div>
+      </div>
+      <label class="btn btn-primary" style="cursor:pointer">
+        ＋ Add Item
+        <input type="file" id="clothing-input" accept="image/*" style="display:none" onchange="handleClothingUpload(this)" multiple/>
+      </label>
+    </div>
+
+    <!-- Upload Zone -->
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('clothing-input').click()"
+         ondragover="event.preventDefault();this.classList.add('dragover')"
+         ondragleave="this.classList.remove('dragover')"
+         ondrop="handleDrop(event)">
+      <div class="upload-zone-icon">👕</div>
+      <div class="upload-zone-text">Drop clothing photos here or click to browse</div>
+      <div class="upload-zone-sub">JPEG, PNG, WebP • Up to 10MB each • AI will auto-tag everything</div>
+    </div>
+
+    <!-- Analyzing bar -->
+    <div class="analyzing-bar" id="analyzing-bar">
+      <div class="spinner"></div>
+      <div class="analyzing-text" id="analyzing-text">🔍 AI is analyzing your clothing item...</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" id="filter-bar" style="display:none">
+      <button class="filter-btn active" onclick="filterItems('all', this)">All</button>
+      <button class="filter-btn" onclick="filterItems('shirt,tshirt,polo,blouse,top,sweater,hoodie', this)">Tops</button>
+      <button class="filter-btn" onclick="filterItems('jeans,trousers,shorts,skirt,dress', this)">Bottoms</button>
+      <button class="filter-btn" onclick="filterItems('shoes,sneakers,boots,sandals,heels', this)">Footwear</button>
+      <button class="filter-btn" onclick="filterItems('jacket,blazer,coat', this)">Outerwear</button>
+    </div>
+
+    <!-- Wardrobe Grid -->
+    <div class="wardrobe-grid" id="wardrobe-grid">
+      <div style="color:rgba(255,255,255,0.3);padding:20px;grid-column:1/-1">Loading wardrobe...</div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '';
+    let allItems = [];
+
+    function getToken() { return localStorage.getItem('token'); }
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    function showToast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.className = `toast ${type} show`;
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    async function apiFetch(path, options = {}) {
+      const token = getToken();
+      const headers = { ...(options.headers || {}) };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (!(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+      const res = await fetch(`${API}${path}`, { ...options, headers });
+      if (res.status === 401) { logout(); return null; }
+      return res;
+    }
+
+    function typeIcon(type) {
+      const icons = { shirt:'👔', tshirt:'👕', polo:'👔', blouse:'👗', top:'👕', jeans:'👖', trousers:'👖', shorts:'🩳', skirt:'👗', dress:'👗', jacket:'🧥', hoodie:'🧥', sweater:'🧣', blazer:'🧥', coat:'🧥', shoes:'👞', sneakers:'👟', boots:'🥾', sandals:'👡', heels:'👠', other:'👕' };
+      return icons[type?.toLowerCase()] || '👗';
+    }
+
+    function renderWardrobe(items) {
+      const grid = document.getElementById('wardrobe-grid');
+      const count = document.getElementById('wardrobe-count');
+      count.textContent = `${items.length} item${items.length !== 1 ? 's' : ''} in your wardrobe`;
+      document.getElementById('filter-bar').style.display = items.length ? 'flex' : 'none';
+
+      if (!items.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🧺</div><div class="empty-text">Your wardrobe is empty!<br>Add some clothing items to get started.</div></div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => {
+        const m = item.metadata || {};
+        return `
+          <div class="clothing-card" data-type="${m.item_type || ''}">
+            ${item.image_url
+              ? `<img src="${item.image_url}" class="clothing-img" alt="${m.item_type || 'clothing'}" loading="lazy"/>`
+              : `<div class="clothing-img-placeholder">${typeIcon(m.item_type)}</div>`}
+            <div class="clothing-info">
+              <div class="clothing-type">${typeIcon(m.item_type)} ${m.item_type || 'Item'}</div>
+              <div class="clothing-color">${m.primary_color || '—'}${m.secondary_color && m.secondary_color !== 'none' ? ' · ' + m.secondary_color : ''}</div>
+              <div class="clothing-tags">
+                ${m.style ? `<span class="clothing-tag">${m.style}</span>` : ''}
+                ${m.pattern && m.pattern !== 'none' ? `<span class="clothing-tag">${m.pattern}</span>` : ''}
+                ${m.occasion ? `<span class="clothing-tag">${m.occasion}</span>` : ''}
+              </div>
+            </div>
+            <button class="delete-btn" onclick="deleteItem(${item.id}, this)" title="Remove">✕</button>
+          </div>`;
+      }).join('');
+    }
+
+    function filterItems(types, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (types === 'all') { renderWardrobe(allItems); return; }
+
+      const typeList = types.split(',');
+      const filtered = allItems.filter(item => {
+        const t = item.metadata?.item_type?.toLowerCase() || '';
+        return typeList.includes(t);
+      });
+      renderWardrobe(filtered);
+    }
+
+    async function loadWardrobe() {
+      if (!getToken()) { window.location.href = '/'; return; }
+      const res = await apiFetch('/api/wardrobe/');
+      if (!res) return;
+      const data = await res.json();
+      allItems = data.wardrobe || [];
+      renderWardrobe(allItems);
+    }
+
+    async function handleClothingUpload(input) {
+      const files = Array.from(input.files);
+      if (!files.length) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const bar = document.getElementById('analyzing-bar');
+        const txt = document.getElementById('analyzing-text');
+        bar.classList.add('active');
+        txt.textContent = `🔍 Analyzing item ${i+1} of ${files.length}: ${file.name}...`;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const res = await apiFetch('/api/wardrobe/add', { method: 'POST', body: formData });
+          if (!res) { bar.classList.remove('active'); return; }
+          const data = await res.json();
+          if (res.ok) {
+            showToast(`✅ ${data.item.metadata.item_type || 'Item'} added to wardrobe!`);
+          } else {
+            showToast('❌ ' + (data.detail || 'Upload failed'), 'error');
+          }
+        } catch (e) {
+          showToast('❌ Connection error', 'error');
+        }
+      }
+
+      document.getElementById('analyzing-bar').classList.remove('active');
+      input.value = '';
+      loadWardrobe();
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      document.getElementById('upload-zone').classList.remove('dragover');
+      const files = event.dataTransfer.files;
+      if (!files.length) return;
+
+      // Create a fake input to reuse handler
+      const fakeInput = { files: files };
+      handleClothingUpload(fakeInput);
+    }
+
+    async function deleteItem(id, btn) {
+      if (!confirm('Remove this item from your wardrobe?')) return;
+      btn.textContent = '⏳'; btn.disabled = true;
+      const res = await apiFetch(`/api/wardrobe/${id}`, { method: 'DELETE' });
+      if (res && res.ok) {
+        showToast('Item removed');
+        loadWardrobe();
+      } else {
+        showToast('Failed to remove item', 'error');
+      }
+    }
+
+    loadWardrobe();
+  </script>
+</body>
+</html>

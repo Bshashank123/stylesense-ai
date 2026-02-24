@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StyleSense AI — Result</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; min-height: 100vh; display: flex; }
+
+    .sidebar { width: 220px; min-width: 220px; background: rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 28px 16px; height: 100vh; position: sticky; top: 0; }
+    .sidebar-logo { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 32px; padding: 0 8px; }
+    .nav-items { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 12px; border-radius: 10px; text-decoration: none; color: rgba(255,255,255,0.45); font-size: 14px; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .nav-item.active { background: rgba(124,58,237,0.2); color: #c4b5fd; }
+    .nav-icon { font-size: 18px; }
+    .logout-btn { background: none; border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.15s; text-align: left; width: 100%; }
+    .logout-btn:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.15); }
+
+    .main { flex: 1; padding: 40px 48px; overflow-y: auto; }
+    .page-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .page-subtitle { color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 32px; }
+
+    /* Outfit Result Card */
+    .result-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 40px; }
+    @media (max-width: 900px) { .result-layout { grid-template-columns: 1fr; } }
+
+    .outfit-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; }
+    .outfit-card-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px; }
+
+    .outfit-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .outfit-item:last-of-type { border-bottom: none; }
+    .outfit-item-icon { font-size: 24px; flex-shrink: 0; width: 36px; text-align: center; }
+    .outfit-item-label { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .outfit-item-value { font-size: 14px; color: rgba(255,255,255,0.85); font-weight: 500; text-transform: capitalize; }
+
+    .explanation-box { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); border-radius: 14px; padding: 18px; margin-top: 18px; }
+    .explanation-label { font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .explanation-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+    .tips-box { background: rgba(219,39,119,0.06); border: 1px solid rgba(219,39,119,0.2); border-radius: 14px; padding: 18px; margin-top: 12px; }
+    .tips-label { font-size: 11px; font-weight: 700; color: #f472b6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+    /* Try-on image */
+    .tryon-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; align-items: center; }
+    .tryon-img { width: 100%; max-width: 320px; border-radius: 16px; object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .tryon-placeholder { width: 100%; max-width: 320px; aspect-ratio: 2/3; background: rgba(255,255,255,0.04); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 2px dashed rgba(255,255,255,0.1); }
+    .tryon-placeholder-icon { font-size: 48px; }
+    .tryon-placeholder-text { font-size: 14px; color: rgba(255,255,255,0.4); }
+
+    .vibe-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.35); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #c4b5fd; font-weight: 600; margin-bottom: 20px; }
+
+    .btn { padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: white; }
+
+    /* History */
+    .section-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .history-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+    .history-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .history-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+    .history-info { padding: 12px; }
+    .history-vibe { font-size: 12px; font-weight: 600; color: #a78bfa; text-transform: capitalize; margin-bottom: 4px; }
+    .history-date { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+    .empty-history { text-align: center; padding: 40px; color: rgba(255,255,255,0.3); }
+
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 1000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo">✦ StyleSense</div>
+    <div class="nav-items">
+      <a href="/dashboard" class="nav-item"><span class="nav-icon">🏠</span> Home</a>
+      <a href="/wardrobe" class="nav-item"><span class="nav-icon">👚</span> Wardrobe</a>
+      <a href="/generate" class="nav-item"><span class="nav-icon">✨</span> Generate</a>
+      <a href="/result" class="nav-item active"><span class="nav-icon">📸</span> History</a>
+    </div>
+    <button class="logout-btn" onclick="logout()">← Sign Out</button>
+  </nav>
+
+  <main class="main">
+    <!-- Current Outfit Result -->
+    <div id="outfit-result" style="display:none">
+      <div class="page-title">🎉 Your Outfit is Ready!</div>
+      <div class="page-subtitle">Here's what AI styled for you today</div>
+
+      <div class="result-layout">
+        <!-- Outfit Details -->
+        <div class="outfit-card">
+          <div class="outfit-card-title">🧥 Your Outfit</div>
+          <div id="vibe-badge-area"></div>
+          <div id="outfit-items"></div>
+          <div class="explanation-box">
+            <div class="explanation-label">💡 Why This Works</div>
+            <div class="explanation-text" id="outfit-explanation">—</div>
+          </div>
+          <div class="tips-box">
+            <div class="tips-label">✨ Style Tips</div>
+            <div class="explanation-text" id="outfit-tips">—</div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+            <a href="/generate" class="btn btn-outline">↩ Generate Another</a>
+          </div>
+        </div>
+
+        <!-- Try-On Image -->
+        <div class="tryon-card">
+          <div class="outfit-card-title">📸 Virtual Try-On</div>
+          <div id="tryon-area">
+            <div class="tryon-placeholder">
+              <div class="tryon-placeholder-icon">🖼️</div>
+              <div class="tryon-placeholder-text">Generate a virtual try-on</div>
+            </div>
+            <div style="margin-top:20px;text-align:center">
+              <button class="btn btn-primary" id="tryon-btn" onclick="generateTryOn()">
+                🪄 Generate Try-On Image
+              </button>
+              <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:8px">Powered by Imagen 3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="section-title" id="history-title">📸 Outfit History</div>
+    <div class="history-grid" id="history-grid">
+      <div style="color:rgba(255,255,255,0.3)">Loading history...</div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '';
+    let currentOutfitId = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    function showToast(msg, type = '') {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.className = `toast ${type} show`;
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    async function apiFetch(path, options = {}) {
+      const token = getToken();
+      const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API}${path}`, { ...options, headers });
+      if (res.status === 401) { logout(); return null; }
+      return res;
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    const vibeEmojis = { 'casual-cool':'😎', 'office-ready':'💼', 'date-night':'🌙', 'street-style':'🏙️', 'weekend-vibes':'☀️', 'gym-fit':'💪', 'brunch-ready':'🥐', 'travel-mode':'✈️', 'party-time':'🎉', 'minimalist':'⬜' };
+
+    function renderOutfit(outfit, vibe) {
+      const items = [
+        { icon: '👕', label: 'Top', key: 'top' },
+        { icon: '👖', label: 'Bottom', key: 'bottom' },
+        { icon: '👟', label: 'Footwear', key: 'footwear' },
+        { icon: '🧥', label: 'Layer', key: 'layering_item' },
+      ];
+
+      document.getElementById('vibe-badge-area').innerHTML = vibe
+        ? `<div class="vibe-badge">${vibeEmojis[vibe] || '✨'} ${vibe.replace('-', ' ')}</div>`
+        : '';
+
+      document.getElementById('outfit-items').innerHTML = items
+        .filter(i => outfit[i.key] && outfit[i.key] !== 'null')
+        .map(i => `
+          <div class="outfit-item">
+            <div class="outfit-item-icon">${i.icon}</div>
+            <div>
+              <div class="outfit-item-label">${i.label}</div>
+              <div class="outfit-item-value">${outfit[i.key]}</div>
+            </div>
+          </div>
+        `).join('');
+
+      if (outfit.color_palette) {
+        document.getElementById('outfit-items').innerHTML += `
+          <div class="outfit-item">
+            <div class="outfit-item-icon">🎨</div>
+            <div>
+              <div class="outfit-item-label">Color Palette</div>
+              <div class="outfit-item-value">${outfit.color_palette}</div>
+            </div>
+          </div>`;
+      }
+
+      document.getElementById('outfit-explanation').textContent = outfit.explanation || '—';
+      document.getElementById('outfit-tips').textContent = outfit.style_tips || '—';
+    }
+
+    async function loadCurrentOutfit() {
+      const params = new URLSearchParams(window.location.search);
+      const outfitId = params.get('outfit_id');
+      if (!outfitId) return;
+
+      currentOutfitId = outfitId;
+      document.getElementById('outfit-result').style.display = 'block';
+      document.getElementById('history-title').textContent = '📚 Previous Outfits';
+
+      const res = await apiFetch(`/api/outfit/${outfitId}`);
+      if (!res || !res.ok) return;
+      const data = await res.json();
+
+      renderOutfit(data.outfit, data.vibe);
+
+      if (data.image_url) {
+        document.getElementById('tryon-area').innerHTML = `
+          <img src="${data.image_url}" class="tryon-img" alt="Virtual try-on"/>
+          <div style="margin-top:16px;text-align:center">
+            <a href="${data.image_url}" download class="btn btn-outline">⬇ Download</a>
+          </div>`;
+      }
+    }
+
+    async function generateTryOn() {
+      if (!currentOutfitId) return;
+
+      const btn = document.getElementById('tryon-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Generating with Imagen 3...';
+      showToast('🎨 Imagen 3 is creating your try-on photo...');
+
+      const res = await apiFetch('/api/outfit/generate-image', {
+        method: 'POST',
+        body: JSON.stringify({ outfit_id: parseInt(currentOutfitId) })
+      });
+
+      if (!res) return;
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast('✅ Try-on image ready!');
+        document.getElementById('tryon-area').innerHTML = `
+          <img src="${data.image_url}" class="tryon-img" alt="Virtual try-on"/>
+          <div style="margin-top:16px;text-align:center">
+            <a href="${data.image_url}" download class="btn btn-outline">⬇ Download</a>
+          </div>`;
+      } else {
+        showToast('❌ ' + (data.detail || 'Image generation failed'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = '🪄 Try Again';
+      }
+    }
+
+    async function loadHistory() {
+      const res = await apiFetch('/api/outfit/history');
+      if (!res || !res.ok) return;
+      const data = await res.json();
+
+      const grid = document.getElementById('history-grid');
+
+      // Filter out the currently displayed outfit from history
+      const history = data.history.filter(o => String(o.id) !== String(currentOutfitId));
+
+      if (!history.length) {
+        grid.innerHTML = `<div class="empty-history" style="grid-column:1/-1">No outfit history yet. <a href="/generate" style="color:#a78bfa">Generate your first →</a></div>`;
+        return;
+      }
+
+      grid.innerHTML = history.map(o => `
+        <div class="history-card" onclick="window.location.href='/result?outfit_id=${o.id}'">
+          ${o.image_url
+            ? `<img src="${o.image_url}" class="history-img" style="display:block" alt="outfit"/>`
+            : `<div class="history-img">${vibeEmojis[o.vibe] || '👗'}</div>`}
+          <div class="history-info">
+            <div class="history-vibe">${vibeEmojis[o.vibe] || '✨'} ${(o.vibe || 'outfit').replace('-', ' ')}</div>
+            <div class="history-date">${formatDate(o.created_at)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (!getToken()) { window.location.href = '/'; }
+    loadCurrentOutfit();
+    loadHistory();
+  </script>
+</body>
+</html>
